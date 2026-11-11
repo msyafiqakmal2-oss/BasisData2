@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CineBook — Pemesanan Tiket Bioskop</title>
+<style>
+:root{--bg:#0b0d17;--card:#151a2e;--line:#252c48;--tx:#eef0fa;--mu:#8e96b8;--ac:#ff4d6d;--ac2:#ffb703;--ok:#2ec4b6}
+*{box-sizing:border-box;margin:0}
+body{font-family:system-ui,Segoe UI,sans-serif;background:radial-gradient(1200px 600px at 80% -10%,#2a1740,transparent),var(--bg);color:var(--tx);min-height:100vh}
+header{padding:22px 5vw;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.logo{font-size:1.6rem;font-weight:800;letter-spacing:.5px}.logo b{color:var(--ac)}
+nav{display:flex;gap:6px;background:var(--card);padding:5px;border-radius:12px;border:1px solid var(--line);flex-wrap:wrap}
+nav button{background:none;border:0;color:var(--mu);padding:9px 16px;border-radius:9px;cursor:pointer;font-weight:600}
+nav button.on{background:var(--ac);color:#fff}
+main{padding:10px 5vw 60px;max-width:1200px;margin:auto}
+h2{margin:10px 0 16px}
+.hero{padding:34px;border-radius:20px;background:linear-gradient(120deg,#ff4d6d33,#7b2cbf33);border:1px solid var(--line);margin-bottom:24px}
+.hero h1{font-size:2rem}.hero p{color:var(--mu);margin-top:6px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.chip{padding:7px 15px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--mu);cursor:pointer}
+.chip.on{background:var(--ac2);color:#111;border-color:var(--ac2);font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px}
+.film{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;transition:.2s}
+.film:hover{transform:translateY(-5px);border-color:var(--ac)}
+.poster{height:150px;display:grid;place-items:center;font-size:3.6rem}
+.fb{padding:16px}.fb h3{font-size:1.1rem}
+.meta{color:var(--mu);font-size:.85rem;margin:6px 0 12px;display:flex;justify-content:space-between}
+.price{font-weight:800;color:var(--ac2)}
+.btn{background:var(--ac);color:#fff;border:0;padding:11px 18px;border-radius:10px;font-weight:700;cursor:pointer;width:100%}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.s{width:auto;background:var(--line)}
+.tbl{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:14px}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--mu);font-size:.78rem;text-transform:uppercase;letter-spacing:1px}
+.note{color:var(--mu);font-size:.9rem;margin-bottom:14px;line-height:1.5}
+code,pre{background:#0a0c15;border:1px solid var(--line);border-radius:8px;padding:2px 7px;font-size:.85rem;color:var(--ac2)}
+pre{display:block;padding:12px;margin:8px 0 14px;overflow-x:auto}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:18px}
+.tag{display:inline-block;padding:3px 10px;border-radius:99px;font-size:.78rem;font-weight:700}
+.bad{background:#ff4d6d33;color:#ff8fa3}.good{background:#2ec4b633;color:var(--ok)}
+.modal{position:fixed;inset:0;background:#000b;display:none;place-items:center;padding:16px;z-index:9}
+.modal.on{display:grid}
+.box{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px;width:100%;max-width:520px;max-height:92vh;overflow:auto}
+.screen{height:8px;border-radius:50%;background:linear-gradient(90deg,transparent,#fff8,transparent);margin:14px 10% 4px}
+.lbl{text-align:center;color:var(--mu);font-size:.75rem;margin-bottom:14px}
+.seats{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin-bottom:14px}
+.seat{aspect-ratio:1;border-radius:8px 8px 4px 4px;border:0;background:#2b3354;color:var(--tx);font-size:.72rem;cursor:pointer;font-weight:600}
+.seat:hover:not(:disabled){background:#3d4778}
+.seat.sel{background:var(--ac);color:#fff}
+.seat:disabled{background:#3a1a24;color:#7a4452;cursor:not-allowed}
+.leg{display:flex;gap:14px;justify-content:center;font-size:.78rem;color:var(--mu);margin-bottom:14px}
+.leg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:#0e1222;color:var(--tx);margin-bottom:12px;font-size:1rem}
+.sum{display:flex;justify-content:space-between;margin-bottom:14px;font-weight:700}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:13px 22px;border-radius:12px;font-weight:600;display:none;z-index:99;max-width:90vw}
+.toast.on{display:block}.toast.err{background:#7a1f33}.toast.ok{background:#14786f}
+.rcpt{text-align:center}.rcpt .k{font-size:1.5rem;font-weight:800;color:var(--ac2);margin:10px 0}
+</style></head><body>
+<header><div class="logo">🎬 Cine<b>Book</b></div>
+<nav id="nav">
+<button data-t="film" class="on">Film &amp; Pesan</button>
+<button data-t="laporan">Laporan (JOIN)</button>
+<button data-t="log">Log Trigger</button>
+<button data-t="index">Uji Index</button>
+</nav></header>
+<main>
+<section id="t-film">
+ <div class="hero"><h1>Pesan tiket favoritmu 🍿</h1><p>Pilih film, pilih kursi, selesai. Setiap pemesanan diproses oleh Stored Procedure dan Trigger di database.</p></div>
+ <div class="chips" id="chips"></div><div class="grid" id="films"></div>
+</section>
+<section id="t-laporan" hidden>
+ <h2>Laporan Pemesanan</h2>
+ <p class="note">Hasil query <code>JOIN</code> tiga tabel: <code>transaksi</code> + <code>film</code> + <code>kursi</code>.</p>
+ <div class="tbl"><table id="lap"></table></div>
+</section>
+<section id="t-log" hidden>
+ <h2>Log Transaksi Otomatis</h2>
+ <p class="note">Baris ini diisi otomatis oleh trigger <code>tg_setelah_pesan</code> (AFTER INSERT pada <code>transaksi</code>), bersamaan dengan status kursi berubah menjadi <code>booked</code>.</p>
+ <div class="tbl"><table id="lg"></table></div>
+</section>
+<section id="t-index" hidden>
+ <h2>Uji Index (EXPLAIN)</h2>
+ <p class="note">Perbandingan rencana eksekusi pencarian film berdasarkan genre, sebelum dan sesudah <code>idx_genre</code> dipakai.</p>
+ <div class="chips" id="gchips"></div>
+ <div class="two"><div><span class="tag bad">TANPA INDEX</span><pre id="q1"></pre><div class="tbl"><table id="e1"></table></div></div>
+ <div><span class="tag good">DENGAN INDEX</span><pre id="q2"></pre><div class="tbl"><table id="e2"></table></div></div></div>
+ <p class="note" style="margin-top:14px"><b>type = ALL</b> berarti full table scan, sedangkan <b>type = ref</b> berarti memakai index lewat kolom <b>key = idx_genre</b>.</p>
+</section>
+</main>
+
+<div class="modal" id="modal"><div class="box" id="box"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rp=n=>'Rp '+Number(n).toLocaleString('id-ID');
+const ICON={Action:'💥',Drama:'🎭',Horror:'👻','Sci-Fi':'🚀',Animation:'🦌'};
+const GRAD={Action:'#ff4d6d,#7b2cbf',Drama:'#ffb703,#fb5607',Horror:'#3a0ca3,#111',  'Sci-Fi':'#00b4d8,#7209b7',Animation:'#2ec4b6,#ffd166'};
+async function api(u,o){const r=await fetch(u,o);const d=await r.json();if(!r.ok)throw new Error(d.error||'Terjadi kesalahan');return d}
+function toast(m,t='ok'){const e=$('#toast');e.textContent=m;e.className='toast on '+t;clearTimeout(e._t);e._t=setTimeout(()=>e.className='toast',3500)}
+function table(el,cols,rows,fmt={}){
+ $(el).innerHTML='<tr>'+cols.map(c=>`<th>${esc(c[1])}</th>`).join('')+'</tr>'+
+ (rows.length?rows.map(r=>'<tr>'+cols.map(c=>`<td>${fmt[c[0]]?fmt[c[0]](r[c[0]]):esc(r[c[0]]??'NULL')}</td>`).join('')+'</tr>').join(''):`<tr><td colspan="${cols.length}" style="color:var(--mu)">Belum ada data</td></tr>`)}
+
+let genre='';
+async function loadChips(){
+ const g=await api('/api/genre');
+ const mk=(id,fn,act)=>{$(id).innerHTML=['Semua',...g].map(x=>`<span class="chip ${(x==='Semua'?'':x)===act?'on':''}" data-g="${x==='Semua'?'':esc(x)}">${esc(x)}</span>`).join('');
+  $(id).onclick=e=>{if(e.target.dataset.g!==undefined)fn(e.target.dataset.g)}};
+ mk('#chips',g=>{genre=g;loadChips();loadFilms()},genre);
+ if(!$('#gchips').innerHTML)mk('#gchips',x=>{loadExplain(x||'Action')},'Action');
+}
+async function loadFilms(){
+ const f=await api('/api/film'+(genre?'?genre='+encodeURIComponent(genre):''));
+ $('#films').innerHTML=f.map(x=>`<div class="film"><div class="poster" style="background:linear-gradient(135deg,${GRAD[x.genre]||'#444,#222'})">${ICON[x.genre]||'🎞️'}</div>
+ <div class="fb"><h3>${esc(x.judul)}</h3><div class="meta"><span>${esc(x.genre)} • ${x.durasi} mnt</span><span>${x.sisa} kursi</span></div>
+ <div class="meta"><span class="price">${rp(x.harga)}</span></div>
+ <button class="btn" ${x.sisa?'':'disabled'} onclick='openBook(${JSON.stringify({id:x.id,judul:x.judul,harga:x.harga})})'>${x.sisa?'Pilih Kursi':'Sold Out'}</button></div></div>`).join('')
+}
+
+let cur,sel=new Set();
+async function openBook(f){
+ cur=f;sel=new Set();const k=await api(`/api/film/${f.id}/kursi`);
+ $('#box').innerHTML=`<h2 style="margin:0">${esc(f.judul)}</h2><p class="note">Studio 1 • ${rp(f.harga)} / kursi</p>
+ <div class="screen"></div><div class="lbl">LAYAR</div>
+ <div class="seats">${k.map(s=>`<button class="seat" data-id="${s.id}" ${s.status==='booked'?'disabled':''}>${esc(s.nomor_kursi)}</button>`).join('')}</div>
+ <div class="leg"><span><i style="background:#2b3354"></i>Tersedia</span><span><i style="background:var(--ac)"></i>Dipilih</span><span><i style="background:#3a1a24"></i>Terisi</span></div>
+ <input id="nama" placeholder="Nama pemesan" maxlength="100">
+ <div class="sum"><span id="sk">0 kursi</span><span id="st">Rp 0</span></div>
+ <div style="display:flex;gap:10px"><button class="btn s" onclick="closeM()">Batal</button><button class="btn" id="go" disabled>Pesan Sekarang</button></div>`;
+ $('#modal').classList.add('on');
+ document.querySelector('.seats').onclick=e=>{const b=e.target.closest('.seat');if(!b||b.disabled)return;
+  const id=+b.dataset.id;sel.has(id)?sel.delete(id):sel.add(id);b.classList.toggle('sel');
+  $('#sk').textContent=sel.size+' kursi';$('#st').textContent=rp(sel.size*f.harga);$('#go').disabled=!sel.size};
+ $('#go').onclick=async()=>{
+  const nama=$('#nama').value.trim();if(!nama)return toast('Isi nama pemesan dulu','err');
+  $('#go').disabled=true;
+  try{const r=await api('/api/pesan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nama,film_id:f.id,kursi_ids:[...sel]})});
+   $('#box').innerHTML=`<div class="rcpt"><div style="font-size:3rem">🎟️</div><h2>Pemesanan Berhasil!</h2>
+   <p class="note">${esc(f.judul)} • atas nama ${esc(nama)}</p><div class="k">${r.kode.map(esc).join('<br>')}</div>
+   <div class="sum" style="justify-content:center;gap:12px"><span>Total</span><span class="price">${rp(r.total)}</span></div>
+   <button class="btn" onclick="closeM()">Selesai</button></div>`;loadFilms();
+  }catch(e){toast(e.message,'err');$('#go').disabled=false;openBook(f).then(()=>toast(e.message,'err'))}
+ };
+}
+function closeM(){$('#modal').classList.remove('on')}
+$('#modal').onclick=e=>{if(e.target.id==='modal')closeM()};
+
+async function loadLap(){table('#lap',[['kode_transaksi','Kode'],['nama_pemesan','Pemesan'],['film','Film'],['nomor_kursi','Kursi'],['total_harga','Total'],['waktu','Waktu']],await api('/api/laporan'),{total_harga:rp,waktu:v=>esc(new Date(v).toLocaleString('id-ID'))})}
+async function loadLog(){table('#lg',[['id','ID'],['aktivitas','Aktivitas'],['waktu','Waktu']],await api('/api/log'),{waktu:v=>esc(new Date(v).toLocaleString('id-ID'))})}
+const EC=[['id','id'],['select_type','select_type'],['table','table'],['type','type'],['possible_keys','possible_keys'],['key','key'],['rows','rows'],['Extra','Extra']];
+async function loadExplain(g='Action'){
+ const d=await api('/api/explain?genre='+encodeURIComponent(g));
+ $('#q1').textContent=`EXPLAIN SELECT * FROM film IGNORE INDEX (idx_genre)\nWHERE genre = '${g}';`;
+ $('#q2').textContent=`EXPLAIN SELECT * FROM film FORCE INDEX (idx_genre)\nWHERE genre = '${g}';`;
+ table('#e1',EC,d.tanpa);table('#e2',EC,d.dengan);
+}
+$('#nav').onclick=e=>{const t=e.target.dataset.t;if(!t)return;
+ document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b===e.target));
+ ['film','laporan','log','index'].forEach(x=>$('#t-'+x).hidden=x!==t);
+ ({film:loadFilms,laporan:loadLap,log:loadLog,index:()=>loadExplain()})[t]()};
+loadChips().then(loadFilms).catch(e=>toast('Gagal terhubung ke database: '+e.message,'err'));
+</script></body></html>
