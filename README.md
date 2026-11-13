@@ -3,6 +3,7 @@
 Stack: Node.js + Express + MariaDB/MySQL.
 
 ## Cara menjalankan
+
 1. Pastikan MariaDB aktif, lalu import database (sudah termasuk tabel, index, stored procedure, trigger, dan user aplikasi):
    sudo mysql < schema.sql
 2. Install dan jalankan:
